@@ -1,0 +1,30 @@
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+.venv/
+venv/
+dist/
+build/
+*.egg-info/
+
+# Local secrets and runtime state
+.env
+.env.*
+!.env.example
+settings.json
+*.log
+*.db
+*.sqlite*
+
+# Editor and operating-system files
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
+# Pytest can leave this directory after interrupted Windows runs
+pytest-cache-files-*/
