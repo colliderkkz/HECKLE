@@ -33,7 +33,7 @@ from .config import AppConfig, ConfigStore
 class ApiSettingsDialog(QDialog):
     def __init__(self, config: AppConfig, parent: QWidget | None = None) -> None:
         super().__init__(parent)
-        self.setWindowTitle("roast_plugin API 设置")
+        self.setWindowTitle("HΞCKLE · API 设置")
         self.setMinimumWidth(440)
         self.key_edit = QLineEdit(config.api_key)
         self.key_edit.setEchoMode(QLineEdit.EchoMode.Password)
@@ -46,7 +46,7 @@ class ApiSettingsDialog(QDialog):
         form.addRow("接口地址", self.base_edit)
         form.addRow("模型", self.model_edit)
         note = QLabel(
-            "roast_plugin 不提供或代填密钥，请使用你自己的服务商 API Key。"
+            "HECKLE 不提供或代填密钥，请使用你自己的服务商 API Key。"
             "请求将直接发送到上方接口；密钥保存在本机用户配置目录。"
         )
         note.setWordWrap(True)
@@ -84,7 +84,7 @@ class RoastBubble(QWidget):
         super().__init__(None, flags)
         self.config = config
         self.store = store
-        self.latest_text = "roast_plugin 已启动，正在观察你。"
+        self.latest_text = "HΞCKLE — Judging every click."
         self.drag_offset: QPoint | None = None
         self.setAttribute(Qt.WidgetAttribute.WA_ShowWithoutActivating)
         self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
@@ -185,11 +185,11 @@ class RoastBubble(QWidget):
         painter.setPen(QColor(110, 116, 130))
         painter.drawRoundedRect(5, 5, 54, 54, 15, 15)
         painter.setPen(QColor(245, 246, 248))
-        painter.setFont(QFont("Segoe UI", 25, QFont.Weight.Bold))
-        painter.drawText(pixmap.rect(), Qt.AlignmentFlag.AlignCenter, "R")
+        painter.setFont(QFont("Segoe UI Symbol", 27, QFont.Weight.Bold))
+        painter.drawText(pixmap.rect(), Qt.AlignmentFlag.AlignCenter, "Ξ")
         painter.end()
         self.tray_icon = QSystemTrayIcon(QIcon(pixmap), self)
-        self.tray_icon.setToolTip("roast_plugin 吐槽器")
+        self.tray_icon.setToolTip("HΞCKLE — Judging every click.")
         self.tray_icon.setContextMenu(self.menu)
         self.tray_icon.activated.connect(self._tray_activated)
         self.tray_icon.show()
@@ -261,4 +261,4 @@ class RoastBubble(QWidget):
             dialog.apply(self.config)
             self.store.save(self.config)
             self.api_settings_changed.emit()
-            QMessageBox.information(dialog, "roast_plugin", "API 设置已保存。")
+            QMessageBox.information(dialog, "HΞCKLE", "API 设置已保存。")

@@ -1,8 +1,8 @@
-from roast_plugin.activity import ActivityEvent
-from roast_plugin.config import AppConfig
+from heckle.activity import ActivityEvent
+from heckle.config import AppConfig
 from PySide6.QtCore import QCoreApplication, QEventLoop, QTimer
 
-from roast_plugin.roaster import (
+from heckle.roaster import (
     CREATIVE_DIRECTIONS,
     RoastService,
     _clean,
@@ -33,6 +33,7 @@ def test_payload_adds_behavior_summary_and_creative_direction():
 
 def test_clean_removes_model_prefix():
     assert _clean('  Backseat： “忙得很具体。”  ') == "忙得很具体。"
+    assert _clean("HΞCKLE：窗口切得比脑子快。") == "窗口切得比脑子快。"
 
 
 def test_common_deepseek_console_url_is_corrected():
@@ -52,7 +53,7 @@ def test_async_worker_is_kept_alive_until_result(monkeypatch):
         def json(self):
             return {"choices": [{"message": {"content": "这点代码切窗口的次数倒不少。"}}]}
 
-    monkeypatch.setattr("roast_plugin.roaster.httpx.post", lambda *args, **kwargs: FakeResponse())
+    monkeypatch.setattr("heckle.roaster.httpx.post", lambda *args, **kwargs: FakeResponse())
     app = QCoreApplication.instance() or QCoreApplication([])
     service = RoastService(AppConfig(api_key="test-key"))
     event = ActivityEvent("SESSION_START", None, "VS Code", "main.py", 0, 5, [])

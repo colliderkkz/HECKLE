@@ -1,4 +1,4 @@
-from roast_plugin.activity import ActivityTracker, WindowInfo
+from heckle.activity import ActivityTracker, WindowInfo
 
 
 def window(app: str, title: str) -> WindowInfo:

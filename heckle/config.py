@@ -48,14 +48,24 @@ class AppConfig:
 class ConfigStore:
     def __init__(self, path: Path | None = None) -> None:
         appdata = Path(os.environ.get("APPDATA", Path.home()))
-        self.path = path or appdata / "roast_plugin" / "settings.json"
-        self.legacy_path = None if path else appdata / "Backseat" / "settings.json"
+        self.path = path or appdata / "HECKLE" / "settings.json"
+        self.legacy_paths = (
+            []
+            if path
+            else [
+                appdata / "roast_plugin" / "settings.json",
+                appdata / "Backseat" / "settings.json",
+            ]
+        )
 
     def load(self) -> AppConfig:
         try:
             source = self.path
-            if not source.exists() and self.legacy_path and self.legacy_path.exists():
-                source = self.legacy_path
+            if not source.exists():
+                source = next(
+                    (candidate for candidate in self.legacy_paths if candidate.exists()),
+                    source,
+                )
             config = AppConfig.from_dict(json.loads(source.read_text(encoding="utf-8")))
         except (OSError, ValueError, TypeError):
             return AppConfig()

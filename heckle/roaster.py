@@ -12,7 +12,7 @@ from .activity import ActivityEvent
 from .config import AppConfig
 
 
-SYSTEM_PROMPT = """你是 roast_plugin，一个坐在用户身后观察电脑操作的毒舌旁白，不是助手。
+SYSTEM_PROMPT = """你是 HECKLE，一个坐在用户身后观察电脑操作的毒舌旁白，不是助手。
 
 根据 JSON 中的当前事件、页面标题、停留时长和最近行为路径，写一句中文吐槽：
 - 通常 18～40 个汉字，最多 45 个汉字，只输出一句，不换行；
@@ -94,7 +94,10 @@ def _response_error(response: httpx.Response) -> str:
 def _clean(text: str) -> str:
     line = re.sub(r"\s+", " ", text).strip()
     line = re.sub(
-        r"^(roast_plugin|Backseat|吐槽|旁白)\s*[：:]\s*", "", line, flags=re.I
+        r"^(HΞCKLE|HECKLE|roast_plugin|Backseat|吐槽|旁白)\s*[：:]\s*",
+        "",
+        line,
+        flags=re.I,
     )
     return line.strip().strip('"“”')[:90]
 

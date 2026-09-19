@@ -14,7 +14,7 @@ from .roaster import RoastService
 from .ui import RoastBubble
 
 
-class RoastPluginController(QObject):
+class HeckleController(QObject):
     def __init__(self) -> None:
         super().__init__()
         self.store = ConfigStore()
@@ -35,7 +35,7 @@ class RoastPluginController(QObject):
         self.bubble.roast_now_requested.connect(self._roast_now)
 
     def start(self) -> None:
-        self.bubble.show_roast("roast_plugin 已启动，正在观察你。")
+        self.bubble.show_roast("HΞCKLE — Judging every click.")
         self.monitor.start()
         QTimer.singleShot(2000, self._initial_roast)
 
@@ -64,11 +64,11 @@ class RoastPluginController(QObject):
 
 def main() -> int:
     if os.name != "nt":
-        print("roast_plugin currently supports Windows only.", file=sys.stderr)
+        print("HECKLE currently supports Windows only.", file=sys.stderr)
         return 1
     app = QApplication(sys.argv)
-    app.setApplicationName("roast_plugin")
-    app.setOrganizationName("roast_plugin")
+    app.setApplicationName("HECKLE")
+    app.setOrganizationName("HECKLE")
     app.setQuitOnLastWindowClosed(False)
 
     def quit_from_console(_signum, _frame) -> None:
@@ -77,7 +77,7 @@ def main() -> int:
     signal.signal(signal.SIGINT, quit_from_console)
     if hasattr(signal, "SIGBREAK"):
         signal.signal(signal.SIGBREAK, quit_from_console)
-    controller = RoastPluginController()
+    controller = HeckleController()
     controller.start()
     try:
         return app.exec()

@@ -1,4 +1,4 @@
-from roast_plugin.app import main
+from heckle.app import main
 
 
 if __name__ == "__main__":

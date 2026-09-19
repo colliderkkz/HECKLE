@@ -28,3 +28,4 @@ Thumbs.db
 
 # Pytest can leave this directory after interrupted Windows runs
 pytest-cache-files-*/
+.test-config-migration/
