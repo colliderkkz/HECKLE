@@ -2,7 +2,7 @@
 
 # HΞCKLE
 
-### Judging every click.
+### `(¬Ξ¬)` Judging every click.
 
 一个常驻桌面、盯着你的每次点击说风凉话的 Windows AI 吐槽器。
 
@@ -12,9 +12,11 @@
 
 视觉名称写作 **HΞCKLE**。中间的 `Ξ` 像一张抿着嘴、满脸无语的表情——正准备评价你刚才那一下。也可以想象成小萝莉皱眉（？）
 
-它不是效率助手，也不会劝你自律。它只负责坐在旁边说风凉话。
+它不是效率助手，也不会劝你自律。它只负责坐在旁边说风凉话。`(￣へ￣)`
 
-## 特性
+> `(¬Ξ¬)` 项目推进得不错，都推进到 Steam 了。
+
+## ✨ 特性
 
 - 自动识别当前应用、窗口标题和停留时间
 - 窗口稳定切换约 1.5 秒后触发，快速切换自动合并
@@ -27,7 +29,7 @@
 - 支持立即吐槽、暂停、频率调整、API 设置和退出
 - API 请求失败时直接显示原因，不会伪装成模型结果
 
-## 工作原理
+## 🧠 工作原理
 
 ```text
 读取前台窗口信息
@@ -43,12 +45,12 @@
 
 HECKLE 不使用截图、OCR、键盘监听或屏幕录制。
 
-## 系统要求
+## 🖥️ 系统要求
 
 - Windows 10/11
 - Python 3.10+
 
-## 安装
+## 🚀 安装
 
 ```powershell
 git clone https://github.com/colliderkkz/HECKLE.git
@@ -67,7 +69,7 @@ python main.py
 
 启动后，桌面右下区域会出现常驻的半透明浮窗。程序会在约 2 秒后根据当前窗口生成第一条吐槽。
 
-## 配置 DeepSeek
+## 🔑 配置 DeepSeek
 
 右键浮窗或系统托盘中的 `Ξ` 图标，选择“API 设置”：
 
@@ -81,7 +83,7 @@ python main.py
 
 也可以使用其他兼容 OpenAI Chat Completions 的服务，只需填写对应的接口地址、模型名称和 API Key。未配置 API Key 时，HECKLE 会使用内置规则文案。
 
-## 操作
+## 🖱️ 操作
 
 | 操作 | 效果 |
 | --- | --- |
@@ -102,7 +104,7 @@ python main.py
 
 也可以在启动程序的终端中按一次 `Ctrl+C` 安静退出。
 
-## 隐私与安全
+## 🔒 隐私与安全
 
 HECKLE 只读取：
 
@@ -127,9 +129,9 @@ API Key 保存在当前 Windows 用户目录下：
 
 该文件位于项目目录之外，不会被 Git 提交。目前 API Key 以明文形式保存在本机，请勿分享该配置文件或将其复制进项目目录。
 
-## 常见问题
+## 🩹 常见问题
 
-### 没有生成吐槽
+### 😶 没有生成吐槽
 
 1. 右键浮窗，选择“立即吐槽”。
 2. 确认程序没有处于暂停状态。
@@ -143,11 +145,11 @@ DeepSeek 推荐使用：
 模型：deepseek-chat
 ```
 
-### 终端一直没有返回
+### ⏳ 终端一直没有返回
 
 这是正常现象。HECKLE 是常驻桌面程序，运行期间会持续占用当前终端。使用右键菜单中的“退出”，或按一次 `Ctrl+C` 结束。
 
-### Windows 阻止脚本激活
+### 🪟 Windows 阻止脚本激活
 
 可以只为当前 PowerShell 会话临时允许脚本：
 
@@ -156,7 +158,7 @@ Set-ExecutionPolicy -Scope Process Bypass
 .\.venv\Scripts\Activate.ps1
 ```
 
-## 项目结构
+## 🗂️ 项目结构
 
 ```text
 HECKLE/
@@ -176,7 +178,7 @@ HECKLE/
     └── test_roaster.py
 ```
 
-## 开发与测试
+## 🧪 开发与测试
 
 ```powershell
 python -m pip install -r requirements-dev.txt
@@ -185,7 +187,7 @@ python -m pytest -p no:cacheprovider
 
 当前版本：`0.2.0`
 
-## 当前限制
+## ⚠️ 当前限制
 
 - 仅支持 Windows
 - 尚未提供安装包，需要通过 Python 启动
