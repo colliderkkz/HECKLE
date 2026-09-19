@@ -51,8 +51,8 @@ HECKLE 不使用截图、OCR、键盘监听或屏幕录制。
 ## 安装
 
 ```powershell
-git clone https://github.com/colliderkkz/roast_plugin.git
-cd roast_plugin
+git clone https://github.com/colliderkkz/HECKLE.git
+cd HECKLE
 
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
@@ -161,7 +161,7 @@ Set-ExecutionPolicy -Scope Process Bypass
 ## 项目结构
 
 ```text
-roast_plugin/
+HECKLE/
 ├── main.py                   # 程序入口
 ├── requirements.txt         # 运行依赖
 ├── requirements-dev.txt     # 测试依赖
@@ -193,4 +193,3 @@ python -m pytest -p no:cacheprovider
 - 尚未提供安装包，需要通过 Python 启动
 - 窗口标题的可用程度取决于具体应用
 - API Key 尚未接入 Windows 凭据管理器
-

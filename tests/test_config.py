@@ -5,7 +5,7 @@ from pathlib import Path
 from heckle.config import ConfigStore
 
 
-def test_roast_plugin_settings_migrate_to_heckle(monkeypatch):
+def test_legacy_settings_migrate_to_heckle(monkeypatch):
     test_root = Path.cwd() / ".test-config-migration"
     shutil.rmtree(test_root, ignore_errors=True)
     try:
