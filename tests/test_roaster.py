@@ -29,11 +29,13 @@ def test_payload_adds_behavior_summary_and_creative_direction():
     assert summary["recent_route"] == "VS Code → Chrome → VS Code"
     assert summary["current_app_appearances"] == 2
     assert summary["previous_stay"] == "40分钟"
+    assert summary["recent_sessions"][-1]["stay"] == "40分钟"
     assert payload["recent_roasts"] == ["上一条吐槽"]
+    assert payload["avoid_openings"] == ["上一条吐槽"]
     assert payload["tone_profile"]["aggression"] == "5/10"
     assert payload["tone_profile"]["smugness"] == "9/10"
     assert payload["tone_profile"]["drama"] == "7/10"
-    assert "至少一个浮夸播报" in payload["tone_profile"]["must_have"]
+    assert "至少一个浮夸叙事" in payload["tone_profile"]["must_have"]
 
 
 def test_clean_removes_model_prefix():
@@ -46,6 +48,9 @@ def test_prompt_uses_playful_low_aggression_tone():
     assert "二次元屑萌小恶魔" in SYSTEM_PROMPT
     assert "把小动作演成重大新闻" in SYSTEM_PROMPT
     assert "每句必须至少有一个清晰的风格标记" in SYSTEM_PROMPT
+    forbidden_catchphrase = "\u9535\u9535"
+    assert forbidden_catchphrase not in SYSTEM_PROMPT
+    assert len(CREATIVE_DIRECTIONS) >= 12
     assert "绝不能直接称呼用户为“杂鱼”" in SYSTEM_PROMPT
     assert "毒舌强度 8/10" not in SYSTEM_PROMPT
 
