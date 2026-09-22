@@ -34,10 +34,11 @@ def test_payload_adds_behavior_summary_and_creative_direction():
     assert summary["recent_sessions"][-1]["stay"] == "40分钟"
     assert payload["recent_roasts"] == ["上一条吐槽"]
     assert payload["avoid_openings"] == ["上一条吐槽"]
-    assert payload["tone_profile"]["aggression"] == "5/10"
-    assert payload["tone_profile"]["smugness"] == "9/10"
+    assert payload["tone_profile"]["aggression"] == "6/10"
+    assert payload["tone_profile"]["brattiness"] == "10/10"
+    assert payload["tone_profile"]["smugness"] == "10/10"
     assert payload["tone_profile"]["drama"] == "7/10"
-    assert "至少一个浮夸叙事" in payload["tone_profile"]["must_have"]
+    assert "至少组合两个雌小鬼风格标记" in payload["tone_profile"]["must_have"]
 
 
 def test_clean_removes_model_prefix():
@@ -45,11 +46,11 @@ def test_clean_removes_model_prefix():
     assert _clean("HΞCKLE：窗口切得比脑子快。") == "窗口切得比脑子快。"
 
 
-def test_prompt_uses_playful_low_aggression_tone():
-    assert "攻击性 5/10、屑度 9/10、戏剧感 7/10" in SYSTEM_PROMPT
-    assert "二次元屑萌小恶魔" in SYSTEM_PROMPT
-    assert "把小动作演成重大新闻" in SYSTEM_PROMPT
-    assert "每句必须至少有一个清晰的风格标记" in SYSTEM_PROMPT
+def test_prompt_uses_strong_bratty_anime_tone():
+    assert "攻击性 6/10、屑度 10/10、得意感 10/10" in SYSTEM_PROMPT
+    assert "成年虚构二次元小恶魔" in SYSTEM_PROMPT
+    assert "装惊讶或假同情 → 戳穿这次杂鱼操作 → 得意坏笑收尾" in SYSTEM_PROMPT
+    assert "每句必须至少组合两个风格标记" in SYSTEM_PROMPT
     forbidden_catchphrase = "\u9535\u9535"
     assert forbidden_catchphrase not in SYSTEM_PROMPT
     assert len(CREATIVE_DIRECTIONS) >= 12
