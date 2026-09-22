@@ -61,6 +61,10 @@ class HeckleController(QObject):
         self.last_roast_at = now
         self.roaster.generate(event)
 
+    def shutdown(self) -> None:
+        self.monitor.timer.stop()
+        self.roaster.shutdown()
+
 
 def main() -> int:
     if os.name != "nt":
@@ -78,6 +82,7 @@ def main() -> int:
     if hasattr(signal, "SIGBREAK"):
         signal.signal(signal.SIGBREAK, quit_from_console)
     controller = HeckleController()
+    app.aboutToQuit.connect(controller.shutdown)
     controller.start()
     try:
         return app.exec()

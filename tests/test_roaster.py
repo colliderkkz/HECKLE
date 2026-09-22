@@ -1,11 +1,13 @@
 from heckle.activity import ActivityEvent
 from heckle.config import AppConfig
 from PySide6.QtCore import QCoreApplication, QEventLoop, QTimer
+from shiboken6 import delete
 
 from heckle.roaster import (
     CREATIVE_DIRECTIONS,
     RoastService,
     SYSTEM_PROMPT,
+    _RoastWorker,
     _clean,
     build_roast_payload,
 )
@@ -84,3 +86,10 @@ def test_async_worker_is_kept_alive_until_result(monkeypatch):
     loop.exec()
     assert received == ["这点代码切窗口的次数倒不少。"]
     assert not service._workers
+
+
+def test_worker_ignores_result_after_signal_source_is_deleted():
+    worker = _RoastWorker(AppConfig(), {})
+    assert not worker.autoDelete()
+    delete(worker.signals)
+    worker._emit_finished("来晚啦～", "")

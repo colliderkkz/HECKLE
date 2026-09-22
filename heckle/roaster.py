@@ -58,11 +58,16 @@ class _WorkerSignals(QObject):
 class _RoastWorker(QRunnable):
     def __init__(self, config: AppConfig, payload: dict) -> None:
         super().__init__()
+        # PySide may delete an auto-deleting QRunnable before its queued signal
+        # is delivered. RoastService owns the worker until _finish instead.
+        self.setAutoDelete(False)
         self.config = config
         self.payload = payload
         self.signals = _WorkerSignals()
 
     def run(self) -> None:
+        text = ""
+        error = ""
         try:
             base = self.config.api_base.rstrip("/")
             endpoint = base if base.endswith("/chat/completions") else base + "/chat/completions"
@@ -85,15 +90,25 @@ class _RoastWorker(QRunnable):
                 timeout=15,
             )
             response.raise_for_status()
-            text = response.json()["choices"][0]["message"]["content"]
-            self.signals.finished.emit(_clean(text), "")
+            content = response.json()["choices"][0]["message"]["content"]
+            text = _clean(content)
         except httpx.HTTPStatusError as exc:
             message = _response_error(exc.response)
-            self.signals.finished.emit("", f"HTTP {exc.response.status_code}：{message}")
+            error = f"HTTP {exc.response.status_code}：{message}"
         except httpx.RequestError as exc:
-            self.signals.finished.emit("", f"网络错误：{str(exc)[:100]}")
+            error = f"网络错误：{str(exc)[:100]}"
         except Exception as exc:
-            self.signals.finished.emit("", f"响应异常：{type(exc).__name__}")
+            error = f"响应异常：{type(exc).__name__}"
+        self._emit_finished(text, error)
+
+    def _emit_finished(self, text: str, error: str) -> None:
+        try:
+            self.signals.finished.emit(text, error)
+        except RuntimeError:
+            # The application can close while an HTTP request is still running.
+            # At that point Qt has already destroyed the signal source, so there
+            # is no UI left to receive the result and the worker should exit quietly.
+            pass
 
 
 def _response_error(response: httpx.Response) -> str:
@@ -178,9 +193,10 @@ class RoastService(QObject):
         self.recent_directions: deque[str] = deque(maxlen=3)
         self._workers: set[_RoastWorker] = set()
         self.busy = False
+        self.closing = False
 
     def generate(self, event: ActivityEvent) -> None:
-        if self.busy:
+        if self.busy or self.closing:
             return
         if not self.config.api_key.strip():
             self._deliver(self._fallback(event))
@@ -204,6 +220,9 @@ class RoastService(QObject):
             self._deliver(text)
         else:
             self.api_error.emit(error or "未知错误")
+
+    def shutdown(self) -> None:
+        self.closing = True
 
     def _deliver(self, text: str) -> None:
         if text:
