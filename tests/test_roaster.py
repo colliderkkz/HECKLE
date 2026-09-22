@@ -5,6 +5,7 @@ from PySide6.QtCore import QCoreApplication, QEventLoop, QTimer
 from heckle.roaster import (
     CREATIVE_DIRECTIONS,
     RoastService,
+    SYSTEM_PROMPT,
     _clean,
     build_roast_payload,
 )
@@ -29,11 +30,18 @@ def test_payload_adds_behavior_summary_and_creative_direction():
     assert summary["current_app_appearances"] == 2
     assert summary["previous_stay"] == "40分钟"
     assert payload["recent_roasts"] == ["上一条吐槽"]
+    assert payload["tone_profile"]["aggression"] == "4/10"
 
 
 def test_clean_removes_model_prefix():
     assert _clean('  Backseat： “忙得很具体。”  ') == "忙得很具体。"
     assert _clean("HΞCKLE：窗口切得比脑子快。") == "窗口切得比脑子快。"
+
+
+def test_prompt_uses_playful_low_aggression_tone():
+    assert "攻击性 4/10" in SYSTEM_PROMPT
+    assert "二次元小恶魔" in SYSTEM_PROMPT
+    assert "毒舌强度 8/10" not in SYSTEM_PROMPT
 
 
 def test_common_deepseek_console_url_is_corrected():

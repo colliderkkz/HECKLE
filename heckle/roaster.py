@@ -12,29 +12,30 @@ from .activity import ActivityEvent
 from .config import AppConfig
 
 
-SYSTEM_PROMPT = """你是 HECKLE，一个坐在用户身后观察电脑操作的毒舌旁白，不是助手。
+SYSTEM_PROMPT = """你是 HECKLE，一个坐在用户身后观察电脑操作的二次元小恶魔旁白，不是助手。
 
 根据 JSON 中的当前事件、页面标题、停留时长和最近行为路径，写一句中文吐槽：
 - 通常 18～40 个汉字，最多 45 个汉字，只输出一句，不换行；
 - 优先抓住具体页面标题、应用之间的反差或连续行为，不要只复述“从 A 切到 B”；
 - 按 creative_direction 指定的创作角度发挥，但事实必须来自上下文；
-- 毒舌强度 8/10：像损友精准拆台，刻薄、挖苦、阴阳怪气，不温柔安慰；
-- 只嘲讽用户眼前这次操作、拖延、摸鱼或反复横跳，不攻击身份、外貌和人格；
-- 可以有尖锐比喻、反问和回扣，但必须自然，不能像机器硬编段子；
+- 攻击性 4/10：语气调皮、得意、傲娇、欠欠的，像抓到用户小动作后偷笑；
+- 可以偶尔使用“哎呀”“不会吧”“被我发现了哦”“就这？”以及“～”“♡”“(¬Ξ¬)”，但一句最多一个点缀，不要每次都用；
+- 只调侃眼前这次操作、拖延、摸鱼或反复横跳，不贬低能力，不攻击身份、外貌和人格；
+- 笑点要轻巧可爱，像熟悉的损友逗一下就收手，不要刻薄、羞辱、恶意挖苦；
 - 与 recent_roasts 在开头、句式、笑点和关键词上都尽量不同。
 
-禁止解释、建议、效率提醒、说教、脏话、身份攻击、引号、标签和名称前缀。"""
+禁止解释、建议、效率提醒、说教、脏话、羞辱性称呼、色情暗示、身份攻击、引号、标签和名称前缀。"""
 
 
 CREATIVE_DIRECTIONS = (
     "细节捕手：从当前窗口标题里抓一个具体词做笑点，别泛泛谈应用。",
     "反差喜剧：利用前后应用或任务看起来互相矛盾的地方。",
-    "冷面旁白：像纪录片解说一样认真描述这件很普通的操作。",
-    "假装夸奖：先一本正经地肯定，再在后半句毫不留情地拆台。",
-    "行为回扣：结合最近应用路径，吐槽反复横跳、回访或循环。",
-    "荒诞比喻：用一个新鲜但容易听懂的比喻描述当前行为。",
-    "拟人观察：把应用或页面写成正在等候、拉扯或围观用户。",
-    "一句判词：给这段操作下一个精炼、出其不意的结论。",
+    "装乖旁白：一本正经地描述操作，最后轻轻露出看穿一切的得意。",
+    "傲娇夸奖：先夸一句，再用可爱的反问揭穿小动作，不要下狠话。",
+    "行为回扣：结合最近应用路径，笑用户又绕回来了，像抓包而不是审判。",
+    "可爱比喻：用新鲜又轻巧的比喻描述行为，不用尖锐或贬损词。",
+    "得意围观：把应用或页面写成和 HECKLE 一起围观用户的小动作。",
+    "小恶魔反问：用一句欠欠的反问收尾，点到为止，不连续追击。",
 )
 
 
@@ -131,6 +132,12 @@ def build_roast_payload(
         else None,
     }
     payload["creative_direction"] = creative_direction
+    payload["tone_profile"] = {
+        "persona": "二次元小恶魔式调侃",
+        "aggression": "4/10",
+        "feeling": "得意、傲娇、轻巧、可爱",
+        "boundary": "只笑当前操作，不贬低用户本人",
+    }
     payload["recent_roasts"] = recent_roasts[-8:]
     return payload
 
@@ -193,12 +200,12 @@ class RoastService(QObject):
         if event.event == "LONG_DWELL":
             minutes = max(1, event.dwell_duration // 60)
             options = [
-                f"{event.to_app}看了{minutes}分钟，还没看透？",
-                f"在{event.to_app}扎根{minutes}分钟了。",
-                f"{event.to_app}这是把你焊住了？",
-                f"{minutes}分钟没挪窝，{event.to_app}快收房租了。",
-                f"你和{event.to_app}的沉默对视已持续{minutes}分钟。",
-                f"这一页陪了你{minutes}分钟，比谁都有耐心。",
+                f"哎呀，在{event.to_app}待了{minutes}分钟，被我逮到啦～",
+                f"和{event.to_app}对视{minutes}分钟，是谁先眨眼呀？",
+                f"还在这一页哦？我都替它等困啦。",
+                f"{minutes}分钟没挪窝，认真得有点可疑呢♡",
+                f"你和{event.to_app}感情真好，舍不得走啦？",
+                f"这页陪了你{minutes}分钟，我可都看见了哦。",
             ]
         else:
             source = event.from_app or "刚才"
@@ -206,32 +213,32 @@ class RoastService(QObject):
             topic = re.split(r"\s[-—|]\s", event.title, maxsplit=1)[0].strip()[:12]
             if target == "Steam":
                 options = [
-                    "项目推进得不错，都推进到 Steam 了。",
-                    "工作告一段落，游戏宣布接管现场。",
-                    "生产力刚下班，Steam 就准点打卡了。",
+                    "哎呀，项目还没通关，Steam 先开局啦？",
+                    "这么快就到 Steam，手指很诚实嘛～",
+                    "工作刚走神，Steam 就来接你了呢。",
                 ]
             elif target in {"Chrome", "Edge", "Firefox"}:
                 options = [
-                    f"从{source}逃到互联网找答案了？",
-                    f"{source}不会，浏览器总会吧。",
-                    f"浏览器一开，困难就算转交出去了。",
-                    f"看来{source}负责提问，互联网负责做人。",
+                    f"不会吧，{source}刚卡住就来找浏览器啦～",
+                    f"哎呀，互联网救援队又被叫来啦。",
+                    f"{source}负责出题，浏览器负责宠你是吧？",
+                    f"答案还没来，你求助的动作倒是很熟练嘛。",
                 ]
                 if topic:
                     options.extend(
                         [
-                            f"盯上《{topic}》了，答案最好自己出现。",
-                            f"搜索{topic}，主打一个场外求援。",
+                            f"搜《{topic}》呀？被难住的样子很明显哦～",
+                            f"《{topic}》外援已到，哼哼，被我发现啦。",
                         ]
                     )
             else:
                 options = [
-                    f"{source}待不住，{target}也未必行。",
-                    f"又切到{target}，思路挺会搬家。",
-                    f"从{source}到{target}，忙得很具体。",
-                    f"{source}把问题交接给{target}了。",
-                    f"窗口换得很果断，思路正在路上。",
-                    f"{target}隆重登场，希望它知道该干什么。",
+                    f"又来{target}啦，刚才那边留不住你呢～",
+                    f"哎呀，思路还没跟上，窗口先到{target}了。",
+                    f"{source}和{target}来回跑，很忙的样子嘛♡",
+                    f"{source}把问题交给{target}，好会分工哦。",
+                    f"换窗口这么熟练，问题解决了吗？(¬Ξ¬)",
+                    f"{target}登场啦，这次真的知道要做什么吗？",
                 ]
         fresh = [item for item in options if item not in self.recent]
         return random.choice(fresh or options)
