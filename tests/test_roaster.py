@@ -53,6 +53,14 @@ def test_prompt_uses_playful_low_aggression_tone():
     forbidden_catchphrase = "\u9535\u9535"
     assert forbidden_catchphrase not in SYSTEM_PROMPT
     assert len(CREATIVE_DIRECTIONS) >= 12
+
+
+def test_flirty_direction_is_rare_and_has_safety_boundaries():
+    flirty = [item for item in CREATIVE_DIRECTIONS if item.startswith("低频暧昧")]
+    assert len(flirty) == 1
+    assert len(CREATIVE_DIRECTIONS) >= 15
+    assert "不涉及身体部位、性行为、未成年或萝莉设定" in SYSTEM_PROMPT
+    assert "不能凭空评价代码行数" in SYSTEM_PROMPT
     assert "绝不能直接称呼用户为“杂鱼”" in SYSTEM_PROMPT
     assert "毒舌强度 8/10" not in SYSTEM_PROMPT
 
