@@ -30,7 +30,8 @@ def test_payload_adds_behavior_summary_and_creative_direction():
     assert summary["current_app_appearances"] == 2
     assert summary["previous_stay"] == "40分钟"
     assert payload["recent_roasts"] == ["上一条吐槽"]
-    assert payload["tone_profile"]["aggression"] == "4/10"
+    assert payload["tone_profile"]["aggression"] == "5/10"
+    assert payload["tone_profile"]["smugness"] == "8/10"
 
 
 def test_clean_removes_model_prefix():
@@ -39,8 +40,9 @@ def test_clean_removes_model_prefix():
 
 
 def test_prompt_uses_playful_low_aggression_tone():
-    assert "攻击性 4/10" in SYSTEM_PROMPT
-    assert "二次元小恶魔" in SYSTEM_PROMPT
+    assert "攻击性 5/10、得意感 8/10" in SYSTEM_PROMPT
+    assert "二次元屑萌小恶魔" in SYSTEM_PROMPT
+    assert "绝不能直接称呼用户为“杂鱼”" in SYSTEM_PROMPT
     assert "毒舌强度 8/10" not in SYSTEM_PROMPT
 
 
