@@ -28,11 +28,14 @@ class AppConfig:
         base = self.api_base.strip().rstrip("/")
         if "platform.deepseek.com" in base:
             base = "https://api.deepseek.com"
+        if base.endswith("/chat/completions"):
+            base = base[: -len("/chat/completions")]
         self.api_base = base or "https://api.openai.com/v1"
-        model = self.model.strip()
-        if "api.deepseek.com" in self.api_base and model.lower() in {"", "deepseek"}:
-            model = "deepseek-chat"
-        self.model = model or "gpt-4o-mini"
+        self.model = (
+            "deepseek-chat"
+            if "api.deepseek.com" in self.api_base.lower()
+            else "gpt-4o-mini"
+        )
 
     @classmethod
     def from_dict(cls, raw: dict[str, Any]) -> "AppConfig":

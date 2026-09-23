@@ -5,7 +5,7 @@ import random
 import re
 from collections import deque
 
-import httpx
+from openai import APIConnectionError, APIStatusError, APITimeoutError, OpenAI, OpenAIError
 from PySide6.QtCore import QObject, QRunnable, QThreadPool, Signal
 
 from .activity import ActivityEvent
@@ -78,36 +78,40 @@ class _RoastWorker(QRunnable):
         text = ""
         error = ""
         try:
-            base = self.config.api_base.rstrip("/")
-            endpoint = base if base.endswith("/chat/completions") else base + "/chat/completions"
-            response = httpx.post(
-                endpoint,
-                headers={"Authorization": f"Bearer {self.config.api_key}"},
-                json={
-                    "model": self.config.model,
-                    "temperature": 1.1,
-                    "top_p": 0.95,
-                    "max_tokens": 120,
-                    "messages": [
-                        {"role": "system", "content": SYSTEM_PROMPT},
-                        {
-                            "role": "user",
-                            "content": json.dumps(self.payload, ensure_ascii=False),
-                        },
-                    ],
-                },
-                timeout=15,
+            client = OpenAI(
+                api_key=self.config.api_key,
+                base_url=self.config.api_base,
+                timeout=15.0,
             )
-            response.raise_for_status()
-            content = response.json()["choices"][0]["message"]["content"]
+            completion = client.chat.completions.create(
+                model=self.config.model,
+                temperature=1.1,
+                top_p=0.95,
+                max_tokens=120,
+                messages=[
+                    {"role": "system", "content": SYSTEM_PROMPT},
+                    {
+                        "role": "user",
+                        "content": json.dumps(self.payload, ensure_ascii=False),
+                    },
+                ],
+            )
+            content = completion.choices[0].message.content
+            if not content:
+                raise ValueError("模型返回了空内容")
             text = _clean(content)
-        except httpx.HTTPStatusError as exc:
-            message = _response_error(exc.response)
-            error = f"HTTP {exc.response.status_code}：{message}"
-        except httpx.RequestError as exc:
-            error = f"网络错误：{str(exc)[:100]}"
+            if not text:
+                raise ValueError("模型返回的内容清理后为空")
+        except APIStatusError as exc:
+            error = f"HTTP {exc.status_code}：{_error_message(exc)}"
+        except APITimeoutError:
+            error = "请求超时，请检查接口地址或网络"
+        except APIConnectionError as exc:
+            error = f"连接失败：{_error_message(exc)}"
+        except OpenAIError as exc:
+            error = f"API 错误：{_error_message(exc)}"
         except Exception as exc:
-            error = f"响应异常：{type(exc).__name__}"
+            error = f"响应异常：{_error_message(exc)}"
         self._emit_finished(text, error)
 
     def _emit_finished(self, text: str, error: str) -> None:
@@ -120,12 +124,9 @@ class _RoastWorker(QRunnable):
             pass
 
 
-def _response_error(response: httpx.Response) -> str:
-    try:
-        detail = response.json().get("error", {}).get("message", "")
-    except (ValueError, AttributeError):
-        detail = ""
-    return str(detail or response.reason_phrase or "请求失败")[:140]
+def _error_message(exc: Exception) -> str:
+    message = re.sub(r"\s+", " ", str(exc)).strip()
+    return (message or type(exc).__name__)[:180]
 
 
 def _clean(text: str) -> str:
@@ -229,7 +230,7 @@ class RoastService(QObject):
         if text:
             self._deliver(text)
         else:
-            self.api_error.emit(error or "未知错误")
+            self.api_error.emit(error or "模型未返回可显示的内容")
 
     def shutdown(self) -> None:
         self.closing = True

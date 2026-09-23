@@ -39,15 +39,13 @@ class ApiSettingsDialog(QDialog):
         self.key_edit.setEchoMode(QLineEdit.EchoMode.Password)
         self.key_edit.setPlaceholderText("填写你自己的 API Key")
         self.base_edit = QLineEdit(config.api_base)
-        self.base_edit.setPlaceholderText("例如 https://api.openai.com/v1")
-        self.model_edit = QLineEdit(config.model)
+        self.base_edit.setPlaceholderText("例如 https://api.deepseek.com")
         form = QFormLayout()
         form.addRow("你的 API Key", self.key_edit)
         form.addRow("接口地址", self.base_edit)
-        form.addRow("模型", self.model_edit)
         note = QLabel(
             "HECKLE 不提供或代填密钥，请使用你自己的服务商 API Key。"
-            "请求将直接发送到上方接口；密钥保存在本机用户配置目录。"
+            "模型会根据接口地址自动选择；密钥保存在本机用户配置目录。"
         )
         note.setWordWrap(True)
         note.setStyleSheet("color: #777;")
@@ -64,7 +62,6 @@ class ApiSettingsDialog(QDialog):
     def apply(self, config: AppConfig) -> None:
         config.api_key = self.key_edit.text().strip()
         config.api_base = self.base_edit.text().strip() or "https://api.openai.com/v1"
-        config.model = self.model_edit.text().strip() or "gpt-4o-mini"
         config.normalize_api_settings()
 
 

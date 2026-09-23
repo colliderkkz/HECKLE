@@ -75,15 +75,29 @@ def test_common_deepseek_console_url_is_corrected():
     assert config.model == "deepseek-chat"
 
 
+def test_full_chat_completions_url_is_normalized():
+    config = AppConfig(api_base="https://api.openai.com/v1/chat/completions")
+    config.normalize_api_settings()
+    assert config.api_base == "https://api.openai.com/v1"
+    assert config.model == "gpt-4o-mini"
+
+
 def test_async_worker_is_kept_alive_until_result(monkeypatch):
-    class FakeResponse:
-        def raise_for_status(self):
-            return None
+    captured = {}
 
-        def json(self):
-            return {"choices": [{"message": {"content": "这点代码切窗口的次数倒不少。"}}]}
+    class FakeCompletions:
+        def create(self, **kwargs):
+            captured.update(kwargs)
+            message = type("Message", (), {"content": "这点代码切窗口的次数倒不少。"})()
+            choice = type("Choice", (), {"message": message})()
+            return type("Completion", (), {"choices": [choice]})()
 
-    monkeypatch.setattr("heckle.roaster.httpx.post", lambda *args, **kwargs: FakeResponse())
+    class FakeClient:
+        def __init__(self, **kwargs):
+            captured["client"] = kwargs
+            self.chat = type("Chat", (), {"completions": FakeCompletions()})()
+
+    monkeypatch.setattr("heckle.roaster.OpenAI", FakeClient)
     app = QCoreApplication.instance() or QCoreApplication([])
     service = RoastService(AppConfig(api_key="test-key"))
     event = ActivityEvent("SESSION_START", None, "VS Code", "main.py", 0, 5, [])
@@ -95,6 +109,8 @@ def test_async_worker_is_kept_alive_until_result(monkeypatch):
     loop.exec()
     assert received == ["这点代码切窗口的次数倒不少。"]
     assert not service._workers
+    assert captured["client"]["base_url"] == "https://api.openai.com/v1"
+    assert captured["model"] == "gpt-4o-mini"
 
 
 def test_worker_ignores_result_after_signal_source_is_deleted():
@@ -102,3 +118,25 @@ def test_worker_ignores_result_after_signal_source_is_deleted():
     assert not worker.autoDelete()
     delete(worker.signals)
     worker._emit_finished("来晚啦～", "")
+
+
+def test_worker_reports_an_empty_model_response(monkeypatch):
+    class FakeCompletions:
+        def create(self, **kwargs):
+            message = type("Message", (), {"content": "   "})()
+            choice = type("Choice", (), {"message": message})()
+            return type("Completion", (), {"choices": [choice]})()
+
+    class FakeClient:
+        def __init__(self, **kwargs):
+            self.chat = type("Chat", (), {"completions": FakeCompletions()})()
+
+    monkeypatch.setattr("heckle.roaster.OpenAI", FakeClient)
+    app = QCoreApplication.instance() or QCoreApplication([])
+    worker = _RoastWorker(AppConfig(api_key="test-key"), {})
+    received = []
+    worker.signals.finished.connect(lambda text, error: received.append((text, error)))
+
+    worker.run()
+
+    assert received == [("", "响应异常：模型返回的内容清理后为空")]

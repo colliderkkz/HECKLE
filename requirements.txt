@@ -1,5 +1,4 @@
 PySide6>=6.7,<7
 psutil>=5.9,<8
 pywin32>=306; sys_platform == "win32"
-httpx>=0.27,<1
-
+openai>=1.30,<3

@@ -39,7 +39,7 @@ HECKLE 不是纯粹骂人，而是那种早就看穿你、还故意明知故问�
 - 窗口稳定切换约 1.5 秒后触发，快速切换自动合并
 - 在同一窗口停留 5、15、30、60 分钟时触发
 - 保留最近约 30 分钟的活动上下文
-- 支持 DeepSeek 及其他 OpenAI Chat Completions 兼容接口
+- 使用 OpenAI 官方 Python SDK，支持 OpenAI 与 DeepSeek 兼容接口
 - 轮换多种屑萌吐槽角度，并避开近期重复句式和口癖
 - 常驻半透明浮窗，根据文字长度自动调整尺寸
 - 始终置顶、不抢夺焦点，可自由拖动并记住位置
@@ -92,13 +92,12 @@ python main.py
 
 | 配置项 | 填写内容 |
 | --- | --- |
-| 接口地址 | `https://api.deepseek.com` |
-| 模型 | `deepseek-chat` |
 | API Key | 你自己的 DeepSeek API Key |
+| 接口地址 | `https://api.deepseek.com` |
 
-保存后选择“立即吐槽”即可验证。调用成功时会显示模型生成的吐槽；调用失败时浮窗会显示 HTTP 状态码或网络错误。
+只需填写这两项。HECKLE 会根据接口地址自动选择模型：DeepSeek 使用 `deepseek-chat`，OpenAI 使用 `gpt-4o-mini`。填写完整的 `/chat/completions` 地址也会自动整理成 SDK 所需的基础地址。
 
-也可以使用其他兼容 OpenAI Chat Completions 的服务，只需填写对应的接口地址、模型名称和 API Key。未配置 API Key 时，HECKLE 会使用内置规则文案。
+保存后选择“立即吐槽”即可验证。调用成功时会显示模型生成的吐槽；调用失败时浮窗会显示 SDK 返回的 HTTP 状态、连接问题或响应错误。未配置 API Key 时，HECKLE 会使用内置规则文案。
 
 ## 🖱️ 操作
 
@@ -152,14 +151,13 @@ API Key 保存在当前 Windows 用户目录下：
 
 1. 右键浮窗，选择“立即吐槽”。
 2. 确认程序没有处于暂停状态。
-3. 检查 API 地址、模型名和 API Key。
+3. 检查 API 地址和 API Key。
 4. 查看浮窗显示的 HTTP 状态码或网络错误。
 
 DeepSeek 推荐使用：
 
 ```text
 接口地址：https://api.deepseek.com
-模型：deepseek-chat
 ```
 
 ### ⏳ 终端一直没有返回
